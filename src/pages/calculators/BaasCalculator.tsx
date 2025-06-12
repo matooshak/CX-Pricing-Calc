@@ -13,6 +13,7 @@ export default function BaasCalculator() {
   const [gigabytes, setGigabytes] = useState(100);
   const [deviceType, setDeviceType] = useState<DeviceType>('server');
   const [deviceCount, setDeviceCount] = useState(1);
+  const [deviceGigabytes, setDeviceGigabytes] = useState(100); // New state for device GB
   
   const [calculatedCost, setCalculatedCost] = useState(0);
   const [finalCost, setFinalCost] = useState(0);
@@ -27,15 +28,19 @@ export default function BaasCalculator() {
       cost = gigabytes * baasPricing.perGbCost;
     } else if (backupType === 'perDevice') {
       if (deviceType === 'server') {
-        cost = deviceCount * baasPricing.perServerCost;
+        const baseCost = deviceCount * baasPricing.perServerCost;
+        const storageCost = deviceGigabytes * baasPricing.perServerGbCost;
+        cost = baseCost + storageCost;
       } else {
-        cost = deviceCount * baasPricing.perWorkstationCost;
+        const baseCost = deviceCount * baasPricing.perWorkstationCost;
+        const storageCost = deviceGigabytes * baasPricing.perWorkstationGbCost;
+        cost = baseCost + storageCost;
       }
     }
     
     setCalculatedCost(cost);
     setFinalCost(cost * (1 + userMargin / 100));
-  }, [backupType, gigabytes, deviceType, deviceCount, baasPricing, userMargin]);
+  }, [backupType, gigabytes, deviceType, deviceCount, deviceGigabytes, baasPricing, userMargin]);
   
   const formatCurrency = (value: number) => {
     const formatter = new Intl.NumberFormat(
@@ -51,7 +56,7 @@ export default function BaasCalculator() {
     // Handle cases where the currency might not be available in the formatter
     try {
       return formatter.format(value);
-    } catch (e) {
+    } catch {
       // Fallback to basic formatting if the currency is not supported
       return `${currency || '₹'} ${value.toFixed(2)}`;
     }
@@ -114,7 +119,7 @@ export default function BaasCalculator() {
               </p>
             </div>
           ) : (
-            <>
+            <div className="space-y-6">
               <div className="form-group">
                 <label className="form-label">Device Type</label>
                 <div className="mt-2 space-y-2">
@@ -141,19 +146,14 @@ export default function BaasCalculator() {
                     <span className="ml-2 text-sm text-secondary-700">Workstation</span>
                   </label>
                 </div>
-                <p className="mt-1 text-xs text-secondary-500">
-                  Price per {deviceType === 'server' ? 'server' : 'workstation'}: 
-                  {deviceType === 'server' 
-                    ? formatCurrency(baasPricing.perServerCost)
-                    : formatCurrency(baasPricing.perWorkstationCost)
-                  }
-                </p>
               </div>
               
               <div className="form-group">
-                <label htmlFor="deviceCount" className="form-label">Number of Devices</label>
+                <label htmlFor="device-count" className="form-label">
+                  Number of {deviceType === 'server' ? 'Servers' : 'Workstations'}
+                </label>
                 <input
-                  id="deviceCount"
+                  id="device-count"
                   type="number"
                   min="1"
                   className="input"
@@ -161,7 +161,26 @@ export default function BaasCalculator() {
                   onChange={(e) => setDeviceCount(Math.max(1, parseInt(e.target.value) || 1))}
                 />
               </div>
-            </>
+              
+              <div className="form-group">
+                <label htmlFor="device-gigabytes" className="form-label">
+                  Storage per {deviceType === 'server' ? 'Server' : 'Workstation'} (GB)
+                </label>
+                <div className="relative">
+                  <input
+                    id="device-gigabytes"
+                    type="number"
+                    min="1"
+                    className="input"
+                    value={deviceGigabytes}
+                    onChange={(e) => setDeviceGigabytes(parseInt(e.target.value) || 1)}
+                  />
+                  <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
+                    <span className="text-secondary-500">GB</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </div>
         

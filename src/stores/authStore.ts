@@ -7,6 +7,10 @@ export interface User {
   name: string;
   email: string;
   role: UserRole;
+  parentResellerId?: string;
+  createdBy?: string;
+  vpsMargin?: number;
+  baasMargin?: number;
 }
 
 interface AuthState {
@@ -20,7 +24,7 @@ interface AuthState {
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
   isAuthenticated: false,
-  isLoading: true,
+  isLoading: false, // Set to false by default
   login: (user: User) => set({ user, isAuthenticated: true, isLoading: false }),
   logout: () => set({ user: null, isAuthenticated: false, isLoading: false }),
 }));

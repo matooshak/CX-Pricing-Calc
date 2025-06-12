@@ -18,17 +18,16 @@ import SetMargins from './pages/resellers/SetMargins';
 import SetBaasMargins from './pages/resellers/SetBaasMargins';
 import ManageUsers from './pages/settings/ManageUsers';
 
-// Demo authentication - replace with actual authentication in production
-setTimeout(() => {
-  useAuthStore.getState().login({
-    id: '1',
-    name: 'Demo Admin',
-    email: 'admin@example.com',
-    role: 'admin',
-  });
-}, 100);
-
 function App() {
+  // Demo authentication - replace with actual authentication in production
+  useEffect(() => {
+    useAuthStore.getState().login({
+      id: '1',
+      name: 'Demo Admin',
+      email: 'admin@example.com',
+      role: 'admin',
+    });
+  }, []); // Empty dependency array means this runs once on mount
   const { user, isAuthenticated, isLoading } = useAuthStore();
   const [isInitialized, setIsInitialized] = useState(false);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuthStore } from '../../stores/authStore';
 import { useCalculatorsStore } from '../../stores/calculatorsStore';
 
@@ -52,9 +52,10 @@ export default function VPSCalculator() {
       
       const serverCost = cpuCost + includedRamCost + additionalRamCost + storageCost;
       
-      // Hardware cost with dynamic margin
-      const hardwareMargin = serverCost * (vpsPricing.dynamicHardwareMargin / 100);
-      const hardwareCost = serverCost + hardwareMargin;
+      // Hardware cost with hosting and dynamic margin
+      const hostingCost = vpsPricing.hostingCost;
+      const hardwareMargin = (serverCost + hostingCost) * (vpsPricing.dynamicHardwareMargin / 100);
+      const hardwareCost = serverCost + hostingCost + hardwareMargin;
       
       // Infrastructure cost with backup
       const backupCost = storageGB * vpsPricing.backupCost;
@@ -82,7 +83,7 @@ export default function VPSCalculator() {
         discountedCost,
       });
     }
-  }, [cpuType, cpuCount, ramGB, storageGB, vmCount, baasBackupGB, vpsPricing, selectedCategory, userMargin, applicableDiscount]);
+  }, [cpuType, cpuCount, ramGB, storageGB, vmCount, baasBackupGB, vpsPricing, selectedCategory, userMargin, applicableDiscount, additionalRam, includedRam]);
   
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-IN', {

@@ -7,6 +7,8 @@ export default function ManageBaasPricing() {
   const [perGbCost, setPerGbCost] = useState(baasPricing.perGbCost);
   const [perServerCost, setPerServerCost] = useState(baasPricing.perServerCost);
   const [perWorkstationCost, setPerWorkstationCost] = useState(baasPricing.perWorkstationCost);
+  const [perServerGbCost, setPerServerGbCost] = useState(baasPricing.perServerGbCost);
+  const [perWorkstationGbCost, setPerWorkstationGbCost] = useState(baasPricing.perWorkstationGbCost);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -20,6 +22,8 @@ export default function ManageBaasPricing() {
       perGbCost,
       perServerCost,
       perWorkstationCost,
+      perServerGbCost,
+      perWorkstationGbCost,
     });
     
     // Show success message
@@ -114,6 +118,42 @@ export default function ManageBaasPricing() {
                 className="input pl-7"
                 value={perWorkstationCost}
                 onChange={(e) => setPerWorkstationCost(parseFloat(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="per-server-gb-cost" className="form-label">Per Server GB Cost</label>
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-secondary-500">$</span>
+              </div>
+              <input
+                id="per-server-gb-cost"
+                type="number"
+                min="0"
+                step="0.01"
+                className="input pl-7"
+                value={perServerGbCost}
+                onChange={(e) => setPerServerGbCost(parseFloat(e.target.value) || 0)}
+              />
+            </div>
+          </div>
+          
+          <div className="form-group">
+            <label htmlFor="per-workstation-gb-cost" className="form-label">Per Workstation GB Cost</label>
+            <div className="relative">
+              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                <span className="text-secondary-500">$</span>
+              </div>
+              <input
+                id="per-workstation-gb-cost"
+                type="number"
+                min="0"
+                step="0.01"
+                className="input pl-7"
+                value={perWorkstationGbCost}
+                onChange={(e) => setPerWorkstationGbCost(parseFloat(e.target.value) || 0)}
               />
             </div>
           </div>

@@ -43,6 +43,7 @@ export default function ManagePricing() {
   const [backupCost, setBackupCost] = useState(vpsPricing.backupCost);
   const [baasCost, setBaasCost] = useState(vpsPricing.baasCost);
   const [dynamicHardwareMargin, setDynamicHardwareMargin] = useState(vpsPricing.dynamicHardwareMargin);
+  const [hostingCost, setHostingCost] = useState(vpsPricing.hostingCost);
   
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -75,6 +76,7 @@ export default function ManagePricing() {
       backupCost,
       baasCost,
       dynamicHardwareMargin,
+      hostingCost,
     };
     
     Object.entries(cpuPricing).forEach(([type, pricing]) => {
@@ -230,6 +232,24 @@ export default function ManagePricing() {
             <h2 className="text-lg font-medium text-secondary-800">Additional Costs</h2>
             
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="form-group">
+                <label htmlFor="hosting-cost" className="form-label">Hosting Cost (per server)</label>
+                <div className="relative">
+                  <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                    <span className="text-secondary-500">₹</span>
+                  </div>
+                  <input
+                    id="hosting-cost"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    className="input pl-7"
+                    value={hostingCost}
+                    onChange={(e) => setHostingCost(parseFloat(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
+              
               <div className="form-group">
                 <label htmlFor="vm-cost" className="form-label">VM Cost (per VM)</label>
                 <div className="relative">

@@ -17,12 +17,15 @@ export interface VpsPricing {
   backupCost: number;
   baasCost: number;
   dynamicHardwareMargin: number;
+  hostingCost: number;
 }
 
 export interface BaasPricing {
   perGbCost: number;
   perServerCost: number;
   perWorkstationCost: number;
+  perServerGbCost: number;
+  perWorkstationGbCost: number;
 }
 
 export interface DiscountTier {
@@ -43,6 +46,7 @@ interface CalculatorsState {
   baasPricing: BaasPricing;
   discountTiers: DiscountTier[];
   margins: Margin[];
+  currency: string;
   
   updateCategories: (categories: Category[]) => void;
   updateVpsPricing: (pricing: Partial<VpsPricing>) => void;
@@ -88,13 +92,18 @@ const initialVpsPricing: VpsPricing = {
   backupCost: 8,
   baasCost: 12,
   dynamicHardwareMargin: 15,
+  hostingCost: 1000, // Default hosting cost
 };
 
 const initialBaasPricing: BaasPricing = {
   perGbCost: 35,
   perServerCost: 2250,
   perWorkstationCost: 1125,
+  perServerGbCost: 25,
+  perWorkstationGbCost: 30,
 };
+
+const initialCurrency = 'INR';
 
 const initialDiscountTiers: DiscountTier[] = [
   { id: '1', minVms: 5, discountPercentage: 5 },
@@ -107,6 +116,7 @@ export const useCalculatorsStore = create<CalculatorsState>((set) => ({
   vpsPricing: initialVpsPricing,
   baasPricing: initialBaasPricing,
   discountTiers: initialDiscountTiers,
+  currency: initialCurrency,
   margins: [
     { resellerId: '2', vpsMargin: 70, baasMargin: 50 },
     { resellerId: '3', vpsMargin: 60, baasMargin: 40 },

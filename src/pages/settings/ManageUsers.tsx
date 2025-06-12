@@ -1,51 +1,77 @@
 import { useState } from 'react';
 import { useUsersStore } from '../../stores/usersStore';
-import { UserRole } from '../../stores/authStore';
+import { UserRole, useAuthStore, type User } from '../../stores/authStore';
 import { Pencil, UserX, UserPlus, Key } from 'lucide-react';
 
 export default function ManageUsers() {
-  const { users, addUser, updateUser, deleteUser, resetPassword } = useUsersStore();
-  
+  const { user: currentUser } = useAuthStore();
+  const { 
+    users, 
+    addUser, 
+    updateUser, 
+    deleteUser, 
+    resetPassword,
+  } = useUsersStore();
+
   const [editMode, setEditMode] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editRole, setEditRole] = useState<UserRole>('reseller');
+  const [editVpsMargin, setEditVpsMargin] = useState<number>(0);
+  const [editBaasMargin, setEditBaasMargin] = useState<number>(0);
+  const [editParentResellerId, setEditParentResellerId] = useState<string | null>(null);
   const [editPassword, setEditPassword] = useState('');
-  
+
   const [showNewUserForm, setShowNewUserForm] = useState(false);
   const [newUserName, setNewUserName] = useState('');
   const [newUserEmail, setNewUserEmail] = useState('');
   const [newUserRole, setNewUserRole] = useState<UserRole>('reseller');
+  const [newUserVpsMargin, setNewUserVpsMargin] = useState<number>(0);
+  const [newUserBaasMargin, setNewUserBaasMargin] = useState<number>(0);
+  const [newUserParentResellerId, setNewUserParentResellerId] = useState<string | null>(null);
   const [newUserPassword, setNewUserPassword] = useState('');
-  
+
   const [showResetPassword, setShowResetPassword] = useState<string | null>(null);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  
+
   const [showConfirmDelete, setShowConfirmDelete] = useState<string | null>(null);
-  
-  const handleEdit = (id: string, name: string, email: string, role: UserRole) => {
-    setEditMode(id);
-    setEditName(name);
-    setEditEmail(email);
-    setEditRole(role);
+
+  const handleEdit = (user: User) => {
+    setEditMode(user.id);
+    setEditName(user.name);
+    setEditEmail(user.email);
+    setEditRole(user.role);
+    setEditVpsMargin(user.vpsMargin || 0);
+    setEditBaasMargin(user.baasMargin || 0);
+    setEditParentResellerId(user.parentResellerId || '');
     setEditPassword('');
   };
-  
+
   const handleSave = (id: string) => {
-    updateUser(id, {
+    const updates: Partial<User> = {
       name: editName,
       email: editEmail,
       role: editRole,
-      password: editPassword || undefined,
-    });
+      vpsMargin: editVpsMargin,
+      baasMargin: editBaasMargin,
+      parentResellerId: editRole === 'sub-reseller' ? editParentResellerId || undefined : undefined,
+    };
+
+    // Only update password if it was changed
+    if (editPassword) {
+      updateUser(id, updates, editPassword);
+    } else {
+      updateUser(id, updates);
+    }
+    
     setEditMode(null);
   };
-  
+
   const handleCancel = () => {
     setEditMode(null);
   };
-  
+
   const handleResetPassword = (id: string) => {
     if (newPassword === confirmPassword) {
       resetPassword(id, newPassword);
@@ -54,37 +80,52 @@ export default function ManageUsers() {
       setConfirmPassword('');
     }
   };
-  
+
   const handleDeleteConfirm = (id: string) => {
     setShowConfirmDelete(id);
   };
-  
+
   const handleDeleteCancel = () => {
     setShowConfirmDelete(null);
   };
-  
+
   const handleDelete = (id: string) => {
     deleteUser(id);
     setShowConfirmDelete(null);
   };
-  
+
   const handleAddUser = () => {
     if (newUserName.trim() === '' || newUserEmail.trim() === '' || newUserPassword.trim() === '') return;
-    
-    addUser({
+
+    // If current user is a reseller and creating a sub-reseller, set themselves as parent
+    const parentResellerId = currentUser?.role === 'reseller' && newUserRole === 'sub-reseller'
+      ? currentUser.id
+      : newUserParentResellerId || undefined;
+
+    const newUser: Omit<User, 'id'> & { password: string } = {
       name: newUserName,
       email: newUserEmail,
       role: newUserRole,
       password: newUserPassword,
-    });
-    
+      vpsMargin: newUserVpsMargin,
+      baasMargin: newUserBaasMargin,
+      parentResellerId,
+      createdBy: currentUser?.id
+    };
+
+    addUser(newUser);
+
+    // Reset form
     setNewUserName('');
     setNewUserEmail('');
     setNewUserRole('reseller');
     setNewUserPassword('');
+    setNewUserVpsMargin(0);
+    setNewUserBaasMargin(0);
+    setNewUserParentResellerId('');
     setShowNewUserForm(false);
   };
-  
+
   return (
     <div className="animate-fade-in">
       <div className="mb-6">
@@ -210,7 +251,7 @@ export default function ManageUsers() {
                     ) : (
                       <div className="flex space-x-2">
                         <button 
-                          onClick={() => handleEdit(user.id, user.name, user.email, user.role)}
+                          onClick={() => handleEdit(user)}
                           className="text-primary-600 hover:text-primary-800"
                           title="Edit"
                         >
