@@ -176,7 +176,14 @@ export default function VPSCalculator() {
               min="1"
               className="input"
               value={vmCount}
-              onChange={(e) => setVmCount(Math.max(1, parseInt(e.target.value) || 1))}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                if (isNaN(value)) {
+                  setVmCount(0);
+                } else {
+                  setVmCount(Math.max(0, value));
+                }
+              }}
             />
           </div>
           
@@ -188,7 +195,14 @@ export default function VPSCalculator() {
               min="0"
               className="input"
               value={baasBackupGB}
-              onChange={(e) => setBaasBackupGB(Math.max(0, parseInt(e.target.value) || 0))}
+              onChange={(e) => {
+                const value = parseInt(e.target.value);
+                if (isNaN(value)) {
+                  setBaasBackupGB(0);
+                } else {
+                  setBaasBackupGB(Math.max(0, value));
+                }
+              }}
             />
           </div>
         </div>
